@@ -3,7 +3,7 @@
 from argparse import ArgumentParser, ArgumentTypeError, Namespace, RawTextHelpFormatter  # noqa: F401
 from json import load as loadjson, dump as dumpjson
 from logging import error
-from os import stat, environ
+from os import stat, environ, path
 from time import time
 
 import sys
@@ -61,8 +61,14 @@ def init_config(description, doc, version):
     is_configfile_optional = get_config("token") or get_config("id")
     config_file = get_config("config")
     if not is_configfile_optional or config_file is not None:
-        __load_config(config_file or "config.json", is_configfile_optional)
-        __cli_args.config = config_file or "config.json"
+        # 获取当前脚本所在的目录
+        script_dir = path.dirname(path.abspath(__file__))
+        # 获取上级目录的路径
+        parent_dir = path.dirname(script_dir)
+        # 组合 config.json 的完整路径
+        config_path = path.join(parent_dir, 'config.json')
+        __load_config(config_file or config_path, is_configfile_optional)
+        __cli_args.config = config_file or config_path
 
 
 def __load_config(path="config.json", skip_auto_generation=False):
